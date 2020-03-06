@@ -1,5 +1,7 @@
 ## Altoros Dapp Test
 
+
+
 ### Goal
 
 Create a DApp that allows people to vote on a (binary) proposal. Each ethereum address should be allowed to vote only once and the vote should cost 0.01 ETH.
@@ -12,7 +14,7 @@ The contract is already deployed at `0x9b7ae666ec5d51c793379612344fac224f29f733`
 
 Feel free to ask any clarifying questions you may have.
 
-### Stack and tools
+### Stack and tools required
 
 The only requirements are to use React for the frontend. Everything else is up to you. We recommend using [web3-react](https://github.com/NoahZinsmeister/web3-react), but it's not required.
 
