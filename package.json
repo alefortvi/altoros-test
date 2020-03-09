@@ -11,12 +11,17 @@
     "@types/react": "^16.9.23",
     "@types/react-bootstrap": "^0.32.20",
     "@types/react-dom": "^16.9.5",
+    "@web3-react/core": "^6.0.7",
     "bootstrap": "^4.4.1",
+    "ethers": "^4.0.45",
     "react": "^16.13.0",
     "react-bootstrap": "^1.0.0-beta.17",
     "react-dom": "^16.13.0",
     "react-scripts": "3.4.0",
-    "typescript": "^3.7.5"
+    "truffle": "^5.1.16",
+    "typescript": "^3.7.5",
+    "web3": "^1.2.6",
+    "web3-react": "^5.0.5"
   },
   "scripts": {
     "start": "react-scripts start",
