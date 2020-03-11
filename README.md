@@ -44,12 +44,14 @@ The application will be ready for serve in the folder _build_.
 
 #### Test issues
 
-
 The contract has a restriction that each account can vote once. If you want to try more than once you can reset the variables with the **clean** method, you can run the clean method by the external _rinkeby_ interface on:
 
-[https://rinkeby.etherscan.io/address/0x9b7ae666ec5d51c793379612344fac224f29f733#writeContract][https://rinkeby.etherscan.io/address/0x9b7ae666ec5d51c793379612344fac224f29f733#writeContract]
+https://rinkeby.etherscan.io/address/0x9b7ae666ec5d51c793379612344fac224f29f733#writeContract
 
 Then 
 
 _Connect with Web3_ > _Write_ 
 
+#### Alternative branch
+
+In the branch _alternative_ there is a version of the contract without the _once vote_'s restriction. You can run this version of the contract on a develop environment. 
