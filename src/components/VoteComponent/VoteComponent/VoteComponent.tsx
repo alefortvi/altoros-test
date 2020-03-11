@@ -15,12 +15,15 @@ const VoteComponent: FunctionComponent<Props> = () => {
 
 
     // connected status
-    const [connected, setConnected] = React.useState(false);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+     const [connected, setConnected] = React.useState(true);
     // current account
     const [account, setAccount] = React.useState("");
     // web3 provider
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [web3Prov, setWeb3Prov] = React.useState(new Web3(Web3.givenProvider));
     // current contract
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [contract, setContract] = React.useState(new web3Prov.eth.Contract(proposalAbi, PROPOSAL_ADDRESS));
     // Loading state
     const [loading, setLoading] = React.useState(false);
@@ -41,59 +44,57 @@ const VoteComponent: FunctionComponent<Props> = () => {
             setLoading(true);
             const isEtheEnable = await (window as any).ethereum.enable();
             if (isEtheEnable) {
-                setConnected(true);
-                const _accounts = await web3Prov.eth.getAccounts();
-                setAccount(_accounts[0]);
+                // setConnected(true);
+                const accounts = await web3Prov.eth.getAccounts();
+                setAccount(accounts[0]);
                 setLoading(false);
                 const currentBlock = await web3Prov.eth.getBlockNumber();
                 //subscribe from current block to latest
                 /** Events subscriptions change and connect (for init state) **/
                 await contract.events.VoteCasted(
-                    {fromBlock: currentBlock, toBlock: "latest"},
-                    (err: any, events: any) => {
+                    {fromBlock: currentBlock, toBlock: "latest"}, () => {
                         // On change event, update votes counts
                         getPositiveVotes();
                         getNegativeVotes();
                     })
-                    .on("connected", (subscriptionId: any) => {
+                    .on("connected", () => {
                         // on connect (init state)
                         getPositiveVotes();
                         getNegativeVotes();
                     });
                 setLoading(false);
             }
-        } catch (e) {
+        } catch (_error) {
             setLoading(false);
             setError(true);
-            handleError(e);
+            handleError(_error);
         }
     };
 
     // Vote method
-    const vote = async (voteCode: number) => {
+    const vote = async (_voteCode: number) => {
         try {
             setError(false);
             setLoading(true);
             if (contract) {
                 await contract.methods
-                    .vote(voteCode)
+                    .vote(_voteCode)
                     .send({from: account, value: web3Prov.utils.toWei("0.01", "ether"), gas: "100000"})
-                    // .on("receipt", (receipt: any) => {})
-                    .on('error', (error: any, receipt: any, confirmations: any) => {
+                    .on('error', (_error: any) => {
                         setError(true);
-                        handleError(error);
+                        handleError(_error);
                     });
                 setLoading(false);
             }
-        } catch (e) {
+        } catch (_error) {
             setLoading(false);
             setError(true);
-            handleError(e);
+            handleError(_error);
         }
     };
 
     // Handle error message
-    const handleError = (_error: any, message?: string) => {
+    const handleError = (_error: any, _message?: string) => {
         setError(true);
         if (_error.code) {
             setErrorMsg(_error.message);
@@ -108,25 +109,25 @@ const VoteComponent: FunctionComponent<Props> = () => {
 
     // get votes for YES
     const getPositiveVotes = async () => {
-        return contract.methods.votesForYes().call().then((v: any) => {
-            setVoteYes(v);
-        }).catch((error: any) => {
-            handleError(error);
+        return contract.methods.votesForYes().call().then((_votesCounts: any) => {
+            setVoteYes(_votesCounts);
+        }).catch((_error: any) => {
+            handleError(_error);
         });
     };
 
     // get votes for NO
     const getNegativeVotes = async () => {
-        return contract.methods.votesForNo().call().then((v: any) => {
-            setVoteNo(v);
-        }).catch((error: any) => {
-            handleError(error);
+        return contract.methods.votesForNo().call().then((_votesCounts: any) => {
+            setVoteNo(_votesCounts);
+        }).catch((_error: any) => {
+            handleError(_error);
         });
     };
 
     useEffect(() => {
-        connect().then();
-    }, []);
+        connect().then(r => setConnected(true));
+    }, [connected]);
 
 
     return (
@@ -146,11 +147,11 @@ const VoteComponent: FunctionComponent<Props> = () => {
             </Row>
             <Row className="d-flex center-text center-element">
                 <Col className="center-element">
-                    <Button variant="dark" size="lg"  onClick={(e: any) => {
+                    <Button variant="dark" size="lg"  onClick={(evt: any) => {
                         vote(2)}} disabled={loading}>Vote for YES</Button>
                 </Col>
                 <Col className="center-element">
-                    <Button variant="dark" size="lg" onClick={(e: any) => {
+                    <Button variant="dark" size="lg" onClick={(evt: any) => {
                         vote(1)}} disabled={loading}>Vote for NO</Button>
                 </Col>
             </Row>
