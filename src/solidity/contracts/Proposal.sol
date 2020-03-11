@@ -29,7 +29,7 @@ contract Proposal {
     */
     function vote(uint256 _vote) external payable {
         require(_vote == 1 || _vote == 2, "Can only vote with 1 (no) or 2 (yes)");
-        require(votes[proposalId][msg.sender] == 0, "Address already voted");
+//      require(votes[proposalId][msg.sender] == 0, "Address already voted");
         require(msg.value == VOTE_FEE, "You must send 0.01 ETH to vote");
 
         votes[proposalId][msg.sender] = _vote;
