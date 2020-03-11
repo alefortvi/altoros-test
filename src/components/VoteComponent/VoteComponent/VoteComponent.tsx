@@ -14,17 +14,14 @@ type Props = OwnProps;
 const VoteComponent: FunctionComponent<Props> = () => {
 
 
+    // web3 provider
+    const web3Prov = new Web3(Web3.givenProvider);
+    // current contract
+    const contract = new web3Prov.eth.Contract(proposalAbi, PROPOSAL_ADDRESS);
     // connected status
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
      const [connected, setConnected] = React.useState(true);
     // current account
     const [account, setAccount] = React.useState("");
-    // web3 provider
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const [web3Prov, setWeb3Prov] = React.useState(new Web3(Web3.givenProvider));
-    // current contract
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const [contract, setContract] = React.useState(new web3Prov.eth.Contract(proposalAbi, PROPOSAL_ADDRESS));
     // Loading state
     const [loading, setLoading] = React.useState(false);
     // Error state
@@ -133,7 +130,7 @@ const VoteComponent: FunctionComponent<Props> = () => {
     return (
         <><Container>
             <Col>
-                <div className="vertical-break-20"></div>
+                <div className="vertical-break-20"/>
             </Col>
             <Row className="d-flex flex-row h-100 center-text">
                 <Col>
@@ -142,7 +139,7 @@ const VoteComponent: FunctionComponent<Props> = () => {
             </Row>
             <Row>
                 <Col>
-                    <div className="vertical-break-100"></div>
+                    <div className="vertical-break-100"/>
                 </Col>
             </Row>
             <Row className="d-flex center-text center-element">
@@ -155,10 +152,10 @@ const VoteComponent: FunctionComponent<Props> = () => {
                         vote(1)}} disabled={loading}>Vote for NO</Button>
                 </Col>
             </Row>
-            <div className="vertical-break-100"></div>
-            <div className="vertical-break-50"></div>
+            <div className="vertical-break-100"/>
+            <div className="vertical-break-50"/>
             <VoteStats votesForYes={voteYes} votesForNo={voteNo}/>
-            <div className="vertical-break-20"></div>
+            <div className="vertical-break-20"/>
             {(loading) ? (<h4 className="center-text"> Loading...</h4>) : null}
             {(error) ? (<h4 className="error-text"><b>Error</b> {errorMsg}</h4>) : null}
         </Container></>
