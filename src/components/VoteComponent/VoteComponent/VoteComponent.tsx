@@ -4,14 +4,9 @@ import Web3 from "web3";
 import {PROPOSAL_ADDRESS} from '../../../contracts/Address/contractAddress';
 import VoteStats from '../VoteStats/VoteStats';
 import './VoteComponent.css';
-
 const proposalAbi = require('../../../contracts/ABI/Proposal.json');
 
-interface OwnProps {}
-
-type Props = OwnProps;
-
-const VoteComponent: FunctionComponent<Props> = () => {
+const VoteComponent: FunctionComponent = () => {
 
 
     // web3 provider
