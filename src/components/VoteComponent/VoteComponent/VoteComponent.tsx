@@ -4,22 +4,15 @@ import Web3 from "web3";
 import {PROPOSAL_ADDRESS} from '../../../contracts/Address/contractAddress';
 import VoteStats from '../VoteStats/VoteStats';
 import './VoteComponent.css';
-
 const proposalAbi = require('../../../contracts/ABI/Proposal.json');
 
-interface OwnProps {}
-
-type Props = OwnProps;
-
-const VoteComponent: FunctionComponent<Props> = () => {
+const VoteComponent: FunctionComponent = () => {
 
 
     // web3 provider
     const web3Prov = new Web3(Web3.givenProvider);
     // current contract
     const contract = new web3Prov.eth.Contract(proposalAbi, PROPOSAL_ADDRESS);
-    // connected status
-     const [connected, setConnected] = React.useState(true);
     // current account
     const [account, setAccount] = React.useState("");
     // Loading state
@@ -59,6 +52,11 @@ const VoteComponent: FunctionComponent<Props> = () => {
                         getPositiveVotes();
                         getNegativeVotes();
                     });
+                // detecting account swap
+                await (window as any).ethereum.on('accountsChanged', (accounts:string[])=> {
+                    setAccount(accounts[0]);
+                });
+
                 setLoading(false);
             }
         } catch (_error) {
@@ -123,8 +121,8 @@ const VoteComponent: FunctionComponent<Props> = () => {
     };
 
     useEffect(() => {
-        connect().then(r => setConnected(true));
-    }, [connected]);
+        connect();
+    }, []);
 
 
     return (
