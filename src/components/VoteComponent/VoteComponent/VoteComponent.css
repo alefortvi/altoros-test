@@ -22,3 +22,7 @@
 .sub-header-table{
     background-color: #dee2e6;
 }
+.error-text{
+    color: #ff3426;
+    font-size: 16px;
+}
