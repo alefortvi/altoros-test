@@ -3,10 +3,10 @@ import {Button, Col, Container, Row} from 'react-bootstrap';
 import Web3 from "web3";
 import {PROPOSAL_ADDRESS} from '../../../contracts/Address/contractAddress';
 import VoteStats from '../VoteStats/VoteStats';
-import './VoteComponent.css';
+import './VoteElection.css';
 const proposalAbi = require('../../../contracts/ABI/Proposal.json');
 
-const VoteComponent: FunctionComponent = () => {
+const VoteElection: FunctionComponent = () => {
 
 
     // web3 provider
@@ -29,7 +29,7 @@ const VoteComponent: FunctionComponent = () => {
 
     // connection setting
     const connect = async () => {
-        clearError();
+        setError(false);
         try {
             setLoading(true);
             const isEtheEnable = await (window as any).ethereum.enable();
@@ -56,12 +56,10 @@ const VoteComponent: FunctionComponent = () => {
                 await (window as any).ethereum.on('accountsChanged', (accounts:string[])=> {
                     setAccount(accounts[0]);
                 });
-
                 setLoading(false);
             }
         } catch (_error) {
             setLoading(false);
-            setError(true);
             handleError(_error);
         }
     };
@@ -76,14 +74,12 @@ const VoteComponent: FunctionComponent = () => {
                     .vote(_voteCode)
                     .send({from: account, value: web3Prov.utils.toWei("0.01", "ether"), gas: "100000"})
                     .on('error', (_error: any) => {
-                        setError(true);
                         handleError(_error);
                     });
                 setLoading(false);
             }
         } catch (_error) {
             setLoading(false);
-            setError(true);
             handleError(_error);
         }
     };
@@ -94,13 +90,10 @@ const VoteComponent: FunctionComponent = () => {
         if (_error.code) {
             setErrorMsg(_error.message);
         } else {
-            setErrorMsg("Transaction has been reverted");
+            setErrorMsg("Unknown error");
         }
     };
 
-    const clearError = () => {
-        setError(false);
-    };
 
     // get votes for YES
     const getPositiveVotes = async () => {
@@ -160,4 +153,4 @@ const VoteComponent: FunctionComponent = () => {
     )
 };
 
-export default VoteComponent;
+export default VoteElection;

@@ -1,6 +1,6 @@
 import React, {FunctionComponent} from 'react';
 import {Table} from 'react-bootstrap';
-import '../VoteStats/VoteStats.css';
+import './VoteStats.css';
 
 
 interface OwnProps {
