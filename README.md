@@ -30,7 +30,7 @@ You can get Rinkeby ether [here](https://faucet.rinkeby.io/). Alternatively, in 
 
 Clone or download the project and run
 
-`npm clean install`
+`npm install`
 
 For develop environment, run:
 
