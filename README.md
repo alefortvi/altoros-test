@@ -24,6 +24,8 @@ You can get Rinkeby ether [here](https://faucet.rinkeby.io/). Alternatively, in 
 
 + Node v.10.16.0
 
++ MetaMask Browser Extension installed
+
 #### Installation
 
 Clone or download the project and run
