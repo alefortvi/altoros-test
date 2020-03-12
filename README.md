@@ -20,13 +20,13 @@ You can get Rinkeby ether [here](https://faucet.rinkeby.io/). Alternatively, in 
 
 ## Application features
 
-#### Application technical features
+### Application technical features
 
 + Node v.10.16.0
 
 + MetaMask Browser Extension installed
 
-#### Installation
+### Installation
 
 Clone or download the project and run
 
@@ -44,7 +44,12 @@ For production environment, run:
 
 The application will be ready for serve in the folder _build_. 
 
-#### Test issues
+### Test issues
+
+To test the contract, you will need to be connected to MetaMask to a private Rinkeby network and create a new account on this network. You can import some of the ones mentioned below by loading the private keys. These accounts already have ETH available.
+
+`03F88ED0614F9FDB9BBC534C4323482B87AD0D512A350FC2BEFC6DDDA2B62CA1`
+`0x0fff86e3cff17fc341c5e3104459807a1133bcf32b8f9e9d3184ec01f8df85a6`
 
 The contract has a restriction that each account can vote once. If you want to try more than once you can reset the variables with the **clean** method, you can run the clean method by the external _rinkeby_ interface on:
 
@@ -54,6 +59,6 @@ Then
 
 _Connect with Web3_ > _Write_ 
 
-#### Alternative branch
+### Alternative branch
 
-In the branch _alternative_ there is a version of the contract without the _once vote_'s restriction. You can run this version of the contract on a develop environment. 
+In the branch _alternative_ there is a version of the contract without the _once vote_'s restriction. You can run this version of the contract on a develop environment.
