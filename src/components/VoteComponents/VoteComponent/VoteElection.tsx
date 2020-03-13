@@ -4,6 +4,7 @@ import Web3 from "web3";
 import {PROPOSAL_ADDRESS} from '../../../contracts/Address/contractAddress';
 import VoteStats from '../VoteStats/VoteStats';
 import './VoteElection.css';
+
 const proposalAbi = require('../../../contracts/ABI/Proposal.json');
 
 const VoteElection: FunctionComponent = () => {
@@ -25,6 +26,9 @@ const VoteElection: FunctionComponent = () => {
     const [voteNo, setVoteNo] = React.useState(0);
     // Positives votes count
     const [voteYes, setVoteYes] = React.useState(0);
+    // Positives votes count
+    const [alreadyVoted, setAlreadyVoted] = React.useState(0);
+
 
 
     // connection setting
@@ -38,6 +42,7 @@ const VoteElection: FunctionComponent = () => {
                 const accounts = await web3Prov.eth.getAccounts();
                 setAccount(accounts[0]);
                 setLoading(false);
+                await getVote(accounts[0]);
                 const currentBlock = await web3Prov.eth.getBlockNumber();
                 //subscribe from current block to latest
                 /** Events subscriptions change and connect (for init state) **/
@@ -53,7 +58,7 @@ const VoteElection: FunctionComponent = () => {
                         getNegativeVotes();
                     });
                 // detecting account swap
-                await (window as any).ethereum.on('accountsChanged', (accounts:string[])=> {
+                await (window as any).ethereum.on('accountsChanged', (accounts: string[]) => {
                     setAccount(accounts[0]);
                 });
                 setLoading(false);
@@ -69,7 +74,8 @@ const VoteElection: FunctionComponent = () => {
         try {
             setError(false);
             setLoading(true);
-            if (contract) {
+            await getVote(account);
+            if (contract && (alreadyVoted === 0)) {
                 await contract.methods
                     .vote(_voteCode)
                     .send({from: account, value: web3Prov.utils.toWei("0.01", "ether"), gas: "100000"})
@@ -77,6 +83,9 @@ const VoteElection: FunctionComponent = () => {
                         handleError(_error);
                     });
                 setLoading(false);
+            } else {
+                setLoading(false);
+                alreadyVoted ? handleError(true, "This account has already voted") : handleError(true);
             }
         } catch (_error) {
             setLoading(false);
@@ -90,7 +99,7 @@ const VoteElection: FunctionComponent = () => {
         if (_error.code) {
             setErrorMsg(_error.message);
         } else {
-            setErrorMsg("Unknown error");
+            setErrorMsg(_message || "Unknown error");
         }
     };
 
@@ -111,6 +120,16 @@ const VoteElection: FunctionComponent = () => {
         }).catch((_error: any) => {
             handleError(_error);
         });
+    };
+
+
+    const getVote = async (_account: any) => {
+        return  contract.methods.getVote(_account).call().then((res: any) => {
+            setAlreadyVoted(res);
+        }).catch((_error: any) => {
+            handleError(_error);
+        });
+
     };
 
     useEffect(() => {
@@ -135,12 +154,14 @@ const VoteElection: FunctionComponent = () => {
             </Row>
             <Row className="d-flex center-text center-element">
                 <Col className="center-element">
-                    <Button variant="dark" size="lg"  onClick={(evt: any) => {
-                        vote(2)}} disabled={loading}>Vote for YES</Button>
+                    <Button variant="dark" size="lg" onClick={(evt: any) => {
+                        vote(2)
+                    }} disabled={loading}>Vote for YES</Button>
                 </Col>
                 <Col className="center-element">
                     <Button variant="dark" size="lg" onClick={(evt: any) => {
-                        vote(1)}} disabled={loading}>Vote for NO</Button>
+                        vote(1)
+                    }} disabled={loading}>Vote for NO</Button>
                 </Col>
             </Row>
             <div className="vertical-break-100"/>
