@@ -3,15 +3,11 @@ import {Button, Col, Container, Row} from 'react-bootstrap';
 import Web3 from "web3";
 import {PROPOSAL_ADDRESS} from '../../../contracts/Address/contractAddress';
 import VoteStats from '../VoteStats/VoteStats';
-import './VoteComponent.css';
+import './VoteElection.css';
 
-const proposalAbi = require('../../../contracts/ABI/Proposal_original.json');
+const proposalAbi = require('../../../contracts/ABI/Proposal.json');
 
-interface OwnProps {}
-
-type Props = OwnProps;
-
-const VoteComponent: FunctionComponent<Props> = () => {
+const VoteElection: FunctionComponent = () => {
 
 
     // web3 provider
@@ -30,11 +26,15 @@ const VoteComponent: FunctionComponent<Props> = () => {
     const [voteNo, setVoteNo] = React.useState(0);
     // Positives votes count
     const [voteYes, setVoteYes] = React.useState(0);
+    // Already vote
+    const [hasAlreadyVoted, setHasAlreadyVoted] = React.useState(false);
+    // Disable button despite of loading
+    const [disableButton, setDisableButton] = React.useState(false);
 
 
     // connection setting
     const connect = async () => {
-        clearError();
+        setError(false);
         try {
             setLoading(true);
             const isEtheEnable = await (window as any).ethereum.enable();
@@ -44,51 +44,76 @@ const VoteComponent: FunctionComponent<Props> = () => {
                 setAccount(accounts[0]);
                 setLoading(false);
                 const currentBlock = await web3Prov.eth.getBlockNumber();
-                //subscribe from current block to latest
-                /** Events subscriptions change and connect (for init state) **/
+                /** subscribe from current block to latest
+                 Events subscriptions on change and connect (for init state) **/
                 await contract.events.VoteCasted(
                     {fromBlock: currentBlock, toBlock: "latest"}, () => {
                         // On change event, update votes counts
                         getPositiveVotes();
                         getNegativeVotes();
+                        /** update the state if the account has voted from
+                         another site **/
+                        getVote(accounts[0]);
                     })
                     .on("connected", () => {
                         // on connect (init state)
                         getPositiveVotes();
                         getNegativeVotes();
                     });
-                // detecting account swap
-                await (window as any).ethereum.on('accountsChanged', (accounts:string[])=> {
+                // detecting account swap1
+                await (window as any).ethereum.on('accountsChanged', (accounts: string[]) => {
                     setAccount(accounts[0]);
+                    getVote(accounts[0]);
                 });
-
                 setLoading(false);
+                await getVote(accounts[0]);
             }
         } catch (_error) {
             setLoading(false);
-            setError(true);
             handleError(_error);
         }
     };
 
     // Vote method
     const vote = async (_voteCode: number) => {
+        setError(false);
+        setLoading(true);
         try {
-            setError(false);
-            setLoading(true);
-            if (contract) {
-                await contract.methods
+            await getVote(account);
+            /** second verification: control if the contract exist and the
+             *  account has already voted
+             This second verification is redundant, prevent the adulteration
+             of the page */
+            if (contract && (!hasAlreadyVoted)) {
+                contract.methods
                     .vote(_voteCode)
-                    .send({from: account, value: web3Prov.utils.toWei("0.01", "ether"), gas: "100000"})
+                    .send(
+                        {
+                            from: account,
+                            value: web3Prov.utils.toWei("0.01", "ether"),
+                            gas: "100000"
+                        })
                     .on('error', (_error: any) => {
-                        setError(true);
                         handleError(_error);
+                        setLoading(false);
+                    })
+                    .on('receipt', (_receipt: any) => {
+                        setLoading(false);
+                        setHasAlreadyVoted(true);
+                        setDisableButton(true);
                     });
+                // cant vote because the contract doesnt exist or the
+                // account has already voted
+            } else {
                 setLoading(false);
+                if (hasAlreadyVoted) {
+                    setDisableButton(true);
+                } else {
+                    handleError(true);
+                }
             }
         } catch (_error) {
             setLoading(false);
-            setError(true);
             handleError(_error);
         }
     };
@@ -99,34 +124,45 @@ const VoteComponent: FunctionComponent<Props> = () => {
         if (_error.code) {
             setErrorMsg(_error.message);
         } else {
-            setErrorMsg("Transaction has been reverted");
+            setErrorMsg(_message || "Unknown error");
         }
     };
 
-    const clearError = () => {
-        setError(false);
-    };
 
     // get votes for YES
     const getPositiveVotes = async () => {
-        return contract.methods.votesForYes().call().then((_votesCounts: any) => {
-            setVoteYes(_votesCounts);
-        }).catch((_error: any) => {
-            handleError(_error);
-        });
+        return contract.methods.votesForYes().call()
+            .then((_votesCounts: any) => {
+                setVoteYes(_votesCounts);
+            }).catch((_error: any) => {
+                handleError(_error);
+            });
     };
 
     // get votes for NO
     const getNegativeVotes = async () => {
-        return contract.methods.votesForNo().call().then((_votesCounts: any) => {
-            setVoteNo(_votesCounts);
-        }).catch((_error: any) => {
-            handleError(_error);
-        });
+        return contract.methods.votesForNo().call()
+            .then((_votesCounts: any) => {
+                setVoteNo(_votesCounts);
+            }).catch((_error: any) => {
+                handleError(_error);
+            });
     };
 
+    const getVote = async (_account: any) => {
+        return await contract.methods.getVote(_account).call()
+            .then((_hasVoted: any) => {
+                setHasAlreadyVoted(_hasVoted > 0);
+                if (_hasVoted > 0) {
+                    setDisableButton(true);
+                } else {
+                    setDisableButton(false);
+                }
+            });
+    }
+
+
     useEffect(() => {
-// eslint-disable-next-line
         connect();
     }, []);
 
@@ -148,12 +184,14 @@ const VoteComponent: FunctionComponent<Props> = () => {
             </Row>
             <Row className="d-flex center-text center-element">
                 <Col className="center-element">
-                    <Button variant="dark" size="lg"  onClick={(evt: any) => {
-                        vote(2)}} disabled={loading}>Vote for YES</Button>
+                    <Button variant="dark" size="lg" onClick={(evt: any) => {
+                        vote(2)
+                    }} disabled={loading || disableButton}>Vote for YES</Button>
                 </Col>
                 <Col className="center-element">
                     <Button variant="dark" size="lg" onClick={(evt: any) => {
-                        vote(1)}} disabled={loading}>Vote for NO</Button>
+                        vote(1)
+                    }} disabled={loading || disableButton}>Vote for NO</Button>
                 </Col>
             </Row>
             <div className="vertical-break-100"/>
@@ -162,8 +200,9 @@ const VoteComponent: FunctionComponent<Props> = () => {
             <div className="vertical-break-20"/>
             {(loading) ? (<h4 className="center-text"> Loading...</h4>) : null}
             {(error) ? (<h4 className="error-text"><b>Error</b> {errorMsg}</h4>) : null}
+            {(hasAlreadyVoted) ? (<h4 className="already-voted-text"><b> This account has already voted </b></h4>) : null}
         </Container></>
     )
 };
 
-export default VoteComponent;
+export default VoteElection;
